@@ -4,10 +4,14 @@ import { User } from './schemas/user.schema';
 import { CreateUserDTO } from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from './enums/user-role.enum';
+import { StudentDataRepository } from './student-data.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UsersRepository) {}
+  constructor(
+    private readonly userRepository: UsersRepository,
+    private readonly studentDataRepository: StudentDataRepository,
+  ) {}
 
   async createStudent(createData: CreateUserDTO): Promise<User> {
     try {
@@ -21,13 +25,17 @@ export class UsersService {
 
       const hashedPassword = await bcrypt.hash(createData.password, 10);
 
-      return this.userRepository.createUser(
+      const user = await this.userRepository.createUser(
         {
           ...createData,
           password: hashedPassword,
         },
         UserRole.STUDENT,
       );
+
+      await this.studentDataRepository.create(user._id);
+
+      return user;
     } catch (error) {
       return error;
     }

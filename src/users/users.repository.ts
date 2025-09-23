@@ -23,6 +23,10 @@ export class UsersRepository {
     return this.userModel.findOne({ email }).exec();
   }
 
+  async findById(id: any): Promise<User | null> {
+    return this.userModel.findById({ id }).exec();
+  }
+
   async updatePersonalInfo(
     email: string,
     updateData: UpdateUserPersonalInfoDTO,

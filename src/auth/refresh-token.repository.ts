@@ -33,4 +33,8 @@ export class RefreshTokenRepository {
       { upsert: true },
     );
   }
+
+  async findByToken(token: string): Promise<RefreshToken | null> {
+    return this.refreshTokenModel.findOne({ token }).exec();
+  }
 }

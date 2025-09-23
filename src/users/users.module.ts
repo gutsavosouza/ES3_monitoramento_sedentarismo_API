@@ -16,5 +16,6 @@ import { StudentData, StudentDataSchema } from './schemas/student-data.schema';
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository, StudentDataRepository],
+  exports: [UsersRepository],
 })
 export class UsersModule {}

@@ -20,7 +20,7 @@ export class UsersController {
       'Conflict error, theres already an user with the received email',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  @Post('students')
+  @Post('students/register')
   async registerStudent(@Body() createUserDTO: CreateUserDTO) {
     return this.userService.createStudent(createUserDTO);
   }

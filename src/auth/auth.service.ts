@@ -7,6 +7,11 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { RefreshTokenRepository } from './refresh-token.repository';
 
+interface payloadToSignTokens {
+  id: any;
+  email: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -31,7 +36,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
 
-    const payload: { id: any; email: string } = {
+    const payload: payloadToSignTokens = {
       id: user._id,
       email: user.email,
     };
@@ -41,7 +46,7 @@ export class AuthService {
     return tokens;
   }
 
-  private async _generateTokens(payload: any): Promise<{
+  private async _generateTokens(payload: payloadToSignTokens): Promise<{
     access_token: string;
     refresh_token: string;
   }> {
@@ -59,5 +64,27 @@ export class AuthService {
       access_token,
       refresh_token,
     };
+  }
+
+  async refreshToken(refresh_token: string) {
+    const refreshToken =
+      await this.refreshTokenRepository.findByToken(refresh_token);
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token inválido.');
+    }
+
+    const user = await this.usersRepository.findById(refreshToken.userId);
+
+    if (!user) {
+      throw new UnauthorizedException('Usuário não encontrado.');
+    }
+
+    const payload = {
+      id: user._id,
+      email: user.email,
+    };
+
+    return this._generateTokens(payload);
   }
 }

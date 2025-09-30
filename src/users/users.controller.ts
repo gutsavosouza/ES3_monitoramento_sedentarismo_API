@@ -25,6 +25,22 @@ export class UsersController {
     return this.userService.createStudent(createUserDTO);
   }
 
+  @ApiBody({ type: CreateUserDTO })
+  @ApiResponse({
+    status: 201,
+    description: 'Teacher user created successfully',
+  })
+  @ApiResponse({
+    status: 409,
+    description:
+      'Conflict error, theres already an user with the received email',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @Post('teachers/register')
+  async registerTeacher(@Body() createUserDTO: CreateUserDTO) {
+    return this.userService.createTeacher(createUserDTO);
+  }
+
   @ApiBody({ type: UpdateUserPersonalInfoDTO })
   @ApiResponse({
     status: 200,

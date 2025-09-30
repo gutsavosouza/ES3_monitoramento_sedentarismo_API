@@ -52,6 +52,12 @@ export class UsersService {
     return student;
   }
 
+  async createTeacher(createData: CreateUserDTO): Promise<User> {
+    const teacher = await this._createNewUser(createData, UserRole.TEACHER);
+    
+    return teacher;
+  }
+
   async updateUserPersonalData(
     email: string,
     updateData: UpdateUserPersonalInfoDTO,

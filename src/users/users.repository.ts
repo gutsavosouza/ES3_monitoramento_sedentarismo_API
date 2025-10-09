@@ -24,7 +24,7 @@ export class UsersRepository {
   }
 
   async findById(id: any): Promise<User | null> {
-    return this.userModel.findById({ id }).exec();
+    return this.userModel.findById(id).exec();
   }
 
   async updatePersonalInfo(

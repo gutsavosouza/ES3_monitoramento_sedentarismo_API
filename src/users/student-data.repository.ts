@@ -32,4 +32,8 @@ export class StudentDataRepository {
       .findOneAndUpdate({ userId: userId }, { $set: updateData }, { new: true })
       .exec();
   }
+
+  async deleteByUserId(userId: any): Promise<void> {
+    await this.studentDataModel.findOneAndDelete({ userId }).exec();
+  }
 }

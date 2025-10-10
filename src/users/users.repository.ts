@@ -24,7 +24,7 @@ export class UsersRepository {
   }
 
   async findById(id: any): Promise<User | null> {
-    return this.userModel.findById({ id }).exec();
+    return this.userModel.findById(id).exec();
   }
 
   async updatePersonalInfo(
@@ -34,5 +34,9 @@ export class UsersRepository {
     return this.userModel
       .findOneAndUpdate({ email }, { $set: updateData }, { new: true })
       .exec();
+  }
+
+  async deleteById(userId: any): Promise<void> {
+    await this.userModel.findOneAndDelete(userId);
   }
 }

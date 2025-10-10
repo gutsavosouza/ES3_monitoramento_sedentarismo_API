@@ -1,7 +1,7 @@
 services:
   es3_database:
     container_name: es3_database
-    image: mongo:6
+    image: mongo:7
     restart: unless-stopped
     ports:
       - 27017:27017
@@ -17,7 +17,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
-    command: yarn start:dev
+    command: yarn run start:dev
     expose:
       - 8080
     ports:

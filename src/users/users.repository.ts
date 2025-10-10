@@ -35,4 +35,8 @@ export class UsersRepository {
       .findOneAndUpdate({ email }, { $set: updateData }, { new: true })
       .exec();
   }
+
+  async deleteById(userId: any): Promise<void> {
+    await this.userModel.findOneAndDelete(userId);
+  }
 }

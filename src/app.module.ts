@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ActivitiesModule } from './activities/activities.module';
 import { RankingsModule } from './rankings/rankings.module';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RankingsModule } from './rankings/rankings.module';
     }),
     ActivitiesModule,
     RankingsModule,
+    SeederModule,
   ],
   controllers: [],
   providers: [],

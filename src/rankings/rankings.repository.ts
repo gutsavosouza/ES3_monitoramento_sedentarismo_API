@@ -44,4 +44,8 @@ export class RankingsRepository {
       { new: true },
     );
   }
+
+  async deleteById(rankingId: any): Promise<void> {
+    await this.rankingModel.findByIdAndDelete(rankingId).exec();
+  }
 }

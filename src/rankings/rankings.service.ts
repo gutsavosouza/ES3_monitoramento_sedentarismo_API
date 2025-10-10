@@ -19,7 +19,7 @@ export class RankingsService {
     private readonly activitiesService: ActivitiesService,
   ) {}
 
-  async create(createData: CreateRankingDTO, teacherId: string) {
+  async create(createData: CreateRankingDTO, teacherId: any) {
     const joinCode = generate({
       length: 8,
       charset: 'alphanumeric',
@@ -39,7 +39,7 @@ export class RankingsService {
     return this.rankingRepository.create(createData, teacherId, joinCode);
   }
 
-  async join(code: string, studentId: string) {
+  async join(code: string, studentId: any) {
     const ranking = await this.rankingRepository.findByCode(code);
     const student = await this.usersRepository.findById(studentId);
 
@@ -58,7 +58,7 @@ export class RankingsService {
     return this.rankingRepository.addParticipant(ranking._id, studentId);
   }
 
-  async getLeaderboard(rankingId: string) {
+  async getLeaderboard(rankingId: any) {
     const ranking = await this.rankingRepository.findById(rankingId);
     if (!ranking) {
       throw new NotFoundException('Ranking não encontrado.');
@@ -69,13 +69,14 @@ export class RankingsService {
         const user = await this.usersRepository.findById(participantId._id);
 
         if (!user) {
-          throw new NotFoundException('O usuário não existe.');
+          // throw new NotFoundException('O usuário não existe.');
+          return null;
         }
 
         const totalPoints =
           await this.activitiesService.getUserTotalPointsForRanking(
-            participantId.toString(),
-            rankingId,
+            participantId,
+            ranking._id,
           );
 
         return {
@@ -86,7 +87,11 @@ export class RankingsService {
       }),
     );
 
-    return leaderboard.sort((a, b) => b.points - a.points);
+    return leaderboard
+      .filter((participant) => {
+        return participant !== null;
+      })
+      .sort((a, b) => b.points - a.points);
   }
 
   async getAllRankings(teacherId: any): Promise<Ranking[]> {
@@ -101,5 +106,13 @@ export class RankingsService {
     }
 
     return this.rankingRepository.findAllByCreatorId(teacherId);
+  }
+
+  async deleteById(rankingId: any): Promise<void> {
+    const ranking = await this.rankingRepository.findById(rankingId);
+    if (!ranking) {
+      throw new NotFoundException('Ranking não encontrado.');
+    }
+    await this.rankingRepository.deleteById(rankingId);
   }
 }

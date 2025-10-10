@@ -17,6 +17,6 @@ import { ActivitiesModule } from 'src/activities/activities.module';
   ],
   controllers: [RankingsController],
   providers: [RankingsService, RankingsRepository],
-  exports: [RankingsRepository],
+  exports: [RankingsRepository, RankingsService],
 })
 export class RankingsModule {}

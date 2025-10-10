@@ -143,9 +143,19 @@ export class ActivitiesService {
     userId: any,
     rankingId: any,
   ): Promise<number> {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    const ranking = await this.rankingRepository.findById(rankingId);
+    if (!ranking) {
+      throw new NotFoundException('O ranking não existe.');
+    }
+
     const activities = await this.activitiesRepository.findByUserIdAndRanking(
-      userId,
-      rankingId,
+      user._id,
+      ranking._id,
     );
 
     const confirmedActivities = activities.filter((act) => act.isConfirmed);
@@ -181,6 +191,14 @@ export class ActivitiesService {
     }, 0);
 
     return totalPoints;
+  }
+
+  async deleteById(activityId: any): Promise<void> {
+    const activity = await this.activitiesRepository.findById(activityId);
+    if (!activity) {
+      throw new NotFoundException('Atividade não encontrada.');
+    }
+    await this.activitiesRepository.deleteById(activityId);
   }
 
   private _calculateActivityScore(activity: Activity): number {

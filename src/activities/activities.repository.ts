@@ -42,7 +42,7 @@ export class ActivitiesRepository {
   }
 
   async findByUserId(
-    userId: string,
+    userId: any,
     startDate?: Date,
     endDate?: Date,
   ): Promise<Activity[]> {
@@ -62,20 +62,24 @@ export class ActivitiesRepository {
   }
 
   async findByUserIdAndRanking(
-    userId: string,
-    rankingId: string,
+    userId: any,
+    rankingId: any,
   ): Promise<Activity[]> {
     const filter: FilterQuery<ActivityDocument> = { userId, rankingId };
 
-    return this.activityModel.find(filter).sort({ ocurredAt: -1 }).exec();
+    return await this.activityModel.find(filter).sort({ ocurredAt: -1 }).exec();
   }
 
   async update(
-    activityId: string,
+    activityId: any,
     updateData: Partial<Activity>,
   ): Promise<Activity | null> {
     return this.activityModel.findByIdAndUpdate(activityId, updateData, {
       new: true,
     });
+  }
+
+  async deleteById(activityId: any): Promise<void> {
+    await this.activityModel.findByIdAndDelete(activityId).exec();
   }
 }

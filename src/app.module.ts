@@ -4,6 +4,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ActivitiesModule } from './activities/activities.module';
+import { RankingsModule } from './rankings/rankings.module';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '30m' },
       global: true,
     }),
+    ActivitiesModule,
+    RankingsModule,
+    SeederModule,
   ],
   controllers: [],
   providers: [],

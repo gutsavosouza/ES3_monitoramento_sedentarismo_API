@@ -54,7 +54,6 @@ export class UsersService {
 
   async createTeacher(createData: CreateUserDTO): Promise<User> {
     const teacher = await this._createNewUser(createData, UserRole.TEACHER);
-    
     return teacher;
   }
 
@@ -103,5 +102,18 @@ export class UsersService {
     }
 
     return this.studentDataRepository.updateStudentData(user._id, updateData);
+  }
+
+  async deleteById(userId: any): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    if (user.role === UserRole.STUDENT) {
+      await this.studentDataRepository.deleteByUserId(user._id);
+    }
+
+    await this.userRepository.deleteById(userId);
   }
 }

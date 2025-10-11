@@ -32,6 +32,8 @@ async function bootstrap() {
     origin: process.env.FRONTEND_URL || '*',
   });
 
+  app.enableShutdownHooks();
+
   await app.listen(PORT);
 }
 bootstrap();

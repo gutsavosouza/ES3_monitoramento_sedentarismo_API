@@ -13,17 +13,14 @@ export class UsersSeed {
     this.logger.log('Starting seeding process for: Users....');
 
     try {
-      const [createdStudents, createdTeachers] = await Promise.all([
-        this._createStudents(),
-        this._createTeachers(),
-      ]);
+      const createdStudents = await this._findOrCreateStudents();
+      const createdTeachers = await this._findOrCreateTeachers();
 
       this.logger.log('Successfully seeded users.');
 
       return [...createdStudents, ...createdTeachers];
     } catch (error) {
       this.logger.error('Failed to seed Users.', error);
-
       return [];
     }
   }
@@ -35,7 +32,6 @@ export class UsersSeed {
       const deletePromises = users.map((user) =>
         this.usersService.deleteById(user._id),
       );
-
       await Promise.all(deletePromises);
       this.logger.log('Finished cleaning up Users.');
     } catch (error) {
@@ -43,7 +39,7 @@ export class UsersSeed {
     }
   }
 
-  private _createStudents(): Promise<User[]> {
+  private async _findOrCreateStudents(): Promise<User[]> {
     const studentsData: CreateUserDTO[] = [
       {
         name: 'Luis Fabiano',
@@ -57,14 +53,19 @@ export class UsersSeed {
       },
     ];
 
-    const studentCreationsPromises = studentsData.map(async (studentDTO) => {
-      return await this.usersService.createStudent(studentDTO);
+    const studentPromises = studentsData.map(async (studentDTO) => {
+      const existingUser = await this.usersService.findByEmail(studentDTO.email);
+      if (existingUser) {
+        this.logger.log(`Student with email ${studentDTO.email} already exists. Skipping.`);
+        return existingUser;
+      }
+      return this.usersService.createStudent(studentDTO);
     });
 
-    return Promise.all(studentCreationsPromises);
+    return Promise.all(studentPromises);
   }
 
-  private _createTeachers(): Promise<User[]> {
+  private async _findOrCreateTeachers(): Promise<User[]> {
     const teachersData: CreateUserDTO[] = [
       {
         name: 'Professor Girafalles',
@@ -73,10 +74,15 @@ export class UsersSeed {
       },
     ];
 
-    const teacherCreationsPromises = teachersData.map(async (teacherData) => {
-      return await this.usersService.createTeacher(teacherData);
+    const teacherPromises = teachersData.map(async (teacherDTO) => {
+      const existingUser = await this.usersService.findByEmail(teacherDTO.email);
+      if (existingUser) {
+        this.logger.log(`Teacher with email ${teacherDTO.email} already exists. Skipping.`);
+        return existingUser;
+      }
+      return this.usersService.createTeacher(teacherDTO);
     });
 
-    return Promise.all(teacherCreationsPromises);
+    return Promise.all(teacherPromises);
   }
 }

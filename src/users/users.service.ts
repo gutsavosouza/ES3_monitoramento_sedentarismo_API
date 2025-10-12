@@ -51,6 +51,9 @@ export class UsersService {
 
     return student;
   }
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findByEmail(email);
+  }
 
   async createTeacher(createData: CreateUserDTO): Promise<User> {
     const teacher = await this._createNewUser(createData, UserRole.TEACHER);

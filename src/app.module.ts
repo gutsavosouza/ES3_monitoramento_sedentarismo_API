@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ActivitiesModule } from './activities/activities.module';
 import { RankingsModule } from './rankings/rankings.module';
 import { SeederModule } from './seeder/seeder.module';
+import { ResearchModule } from './research/research.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SeederModule } from './seeder/seeder.module';
     ActivitiesModule,
     RankingsModule,
     SeederModule,
+    ResearchModule,
   ],
   controllers: [],
   providers: [],

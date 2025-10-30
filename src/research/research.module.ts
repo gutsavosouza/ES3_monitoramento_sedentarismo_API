@@ -16,7 +16,7 @@ import {
   ],
   controllers: [ResearchController],
   providers: [ResearchService, ResearchRepository],
-  exports: [ResearchRepository], // <-- ADICIONADO: Disponibiliza o repositório para outros módulos
+  exports: [ResearchRepository],
 })
 export class ResearchModule {}
 

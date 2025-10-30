@@ -21,10 +21,6 @@ export class ResearchRepository {
     return this.researchModel.find().exec();
   }
 
-  /**
-   * Insere ou atualiza múltiplos documentos de uma vez (upsert).
-   * @param data Array de DTOs com os dados a serem inseridos/atualizados.
-   */
   async upsertMany(data: CreateResearchDataDto[]): Promise<void> {
     if (data.length === 0) {
       return;
@@ -41,9 +37,7 @@ export class ResearchRepository {
     await this.researchModel.bulkWrite(operations);
   }
 
-  /**
-   * Apaga todos os documentos da coleção de dados da pesquisa.
-   */
+
   async cleanup(): Promise<void> {
     await this.researchModel.deleteMany({});
   }

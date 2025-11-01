@@ -12,7 +12,9 @@ export class ResearchSeed {
   constructor(private readonly researchRepository: ResearchRepository) {}
 
   async seed() {
-    this.logger.log('A iniciar o processo de seeding para: Dados da Pesquisa....');
+    this.logger.log(
+      'A iniciar o processo de seeding para: Dados da Pesquisa....',
+    );
 
     const dataFiles = [
       { year: 2016, filename: 'data_2016.csv' },
@@ -21,8 +23,9 @@ export class ResearchSeed {
 
     for (const fileInfo of dataFiles) {
       const filePath = path.join(
-        __dirname,
-        '..',
+        process.cwd(),
+        'src',
+        'seeder',
         'research-data',
         fileInfo.filename,
       );
@@ -130,4 +133,3 @@ export class ResearchSeed {
     });
   }
 }
-

@@ -1,6 +1,7 @@
 import { IsArray, IsMongoId } from 'class-validator';
 import { CreateActivityDTO } from './create-activity.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { Types } from 'mongoose';
 
 export class CreateGroupActivityDTO extends CreateActivityDTO {
   @ApiProperty({
@@ -10,5 +11,5 @@ export class CreateGroupActivityDTO extends CreateActivityDTO {
   })
   @IsArray()
   @IsMongoId({ each: true })
-  participantIds: any[];
+  participantIds: Types.ObjectId[];
 }

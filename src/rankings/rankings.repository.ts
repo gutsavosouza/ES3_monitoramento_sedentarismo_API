@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { Ranking, RankingDocument } from './schemas/rankings.schema';
 import { CreateRankingDTO } from './dtos/create-ranking.dto';
 
@@ -12,7 +12,7 @@ export class RankingsRepository {
 
   async create(
     createData: CreateRankingDTO,
-    teacherId: any,
+    teacherId: mongoose.Types.ObjectId,
     joinCode: string,
   ): Promise<Ranking> {
     const createdRanking = await this.rankingModel.create({
@@ -33,8 +33,12 @@ export class RankingsRepository {
     return this.rankingModel.findOne({ joinCode }).exec();
   }
 
-  async findAllByCreatorId(creatorId: any): Promise<Ranking[]> {
-    return this.rankingModel.find({ creatorId }).exec();
+  async findAllByCreatorId(
+    creatorId: mongoose.Types.ObjectId,
+  ): Promise<Ranking[]> {
+    return this.rankingModel
+      .find({ creatorId: new Types.ObjectId(creatorId) })
+      .exec();
   }
 
   async addParticipant(rankingId: any, studentId): Promise<Ranking | null> {

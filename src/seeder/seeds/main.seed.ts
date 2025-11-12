@@ -54,8 +54,12 @@ export class MainSeed implements OnModuleInit, OnApplicationShutdown {
       return;
     }
 
-    const students = seededUsers.filter((user) => user.role === UserRole.STUDENT);
-    const teachers = seededUsers.filter((user) => user.role === UserRole.TEACHER);
+    const students = seededUsers.filter(
+      (user) => user.role === UserRole.STUDENT,
+    );
+    const teachers = seededUsers.filter(
+      (user) => user.role === UserRole.TEACHER,
+    );
 
     const seededRankings = await this.rankingsSeed.seed(teachers, students);
     if (!seededRankings.length) {
@@ -64,13 +68,16 @@ export class MainSeed implements OnModuleInit, OnApplicationShutdown {
       );
     }
 
-    const seededActivities = await this.activitiesSeed.seed(students, seededRankings);
+    const seededActivities = await this.activitiesSeed.seed(
+      students,
+      seededRankings,
+    );
     if (!seededActivities.length) {
       this.logger.warn(
         'Activities seeding did not create any activities. Check logs for details.',
       );
     }
-    
+
     await this.researchSeed.seed();
 
     this.logger.log('--- Database seeding process finished successfully. ---');
@@ -87,4 +94,3 @@ export class MainSeed implements OnModuleInit, OnApplicationShutdown {
     this.logger.log('--- Database cleaning process finished successfully. ---');
   }
 }
-

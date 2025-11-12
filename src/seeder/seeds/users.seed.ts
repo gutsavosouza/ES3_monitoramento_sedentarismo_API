@@ -100,4 +100,3 @@ export class UsersSeed {
     return Promise.all(teacherCreationsPromises);
   }
 }
-

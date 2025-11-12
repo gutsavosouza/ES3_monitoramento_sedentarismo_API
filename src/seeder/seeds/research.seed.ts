@@ -107,6 +107,22 @@ export class ResearchSeed {
             estatura: parsedRow.estatura,
           };
 
+          const { massa, estatura } = researchDataDto;
+
+          if (
+            massa !== undefined && massa !== null &&
+            estatura !== undefined && estatura !== null
+          ) {
+            // verificação de outliers !!
+            const isReasonableWeight = massa > 30 && massa < 200; // 30kg a 200kg
+            const isReasonableHeight = estatura > 100 && estatura < 220; // 1m a 2.2m
+
+            if (isReasonableWeight && isReasonableHeight) {
+              const heightInMeters = estatura / 100;
+              researchDataDto.bmi = massa / (heightInMeters * heightInMeters);
+            }
+          }
+
           if (researchDataDto.studentId) {
             results.push(researchDataDto);
           }

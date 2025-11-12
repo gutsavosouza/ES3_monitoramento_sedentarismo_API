@@ -7,7 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { RankingsModule } from 'src/rankings/rankings.module';
 import { ActivitiesModule } from 'src/activities/activities.module';
 import { ResearchSeed } from './seeds/research.seed';
-import { ResearchModule } from 'src/research/research.module'; 
+import { ResearchModule } from 'src/research/research.module';
 
 @Module({
   imports: [

@@ -118,6 +118,9 @@ export class ResearchData {
 
   @Prop()
   estatura: number;
+
+  @Prop()
+  bmi: number;
 }
 
 export const ResearchDataSchema = SchemaFactory.createForClass(ResearchData);

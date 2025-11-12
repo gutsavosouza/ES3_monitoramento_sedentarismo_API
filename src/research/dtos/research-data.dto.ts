@@ -152,5 +152,8 @@ export class CreateResearchDataDto {
   @IsNumber()
   @IsOptional()
   estatura?: number;
-}
 
+  @IsNumber()
+  @IsOptional()
+  bmi?: number;
+}

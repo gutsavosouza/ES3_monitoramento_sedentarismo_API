@@ -8,5 +8,8 @@ export class ResearchService {
   async findAll() {
     return this.researchRepository.findAll();
   }
-}
 
+  async getBmiByAgeAndGender() {
+    return this.researchRepository.getBmiByAgeAndGender();
+  }
+}

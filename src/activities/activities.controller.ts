@@ -99,7 +99,6 @@ export class ActivitiesController {
   }
 
   @Get('user/:userId')
-  
   @ApiParam({ name: 'userId', description: 'The ID of the user' })
   @ApiQuery({
     name: 'startDate',

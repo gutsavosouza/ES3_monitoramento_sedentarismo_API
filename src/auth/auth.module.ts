@@ -16,7 +16,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
     forwardRef(() => UsersModule),
     MongooseModule.forFeature([
       { name: RefreshToken.name, schema: RefreshTokenSchema },
-    ])
+    ]),
   ],
   providers: [AuthService, RefreshTokenRepository],
   controllers: [AuthController],

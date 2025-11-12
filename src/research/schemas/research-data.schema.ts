@@ -121,6 +121,21 @@ export class ResearchData {
 
   @Prop()
   bmi: number;
+
+  @Prop()
+  dailyTvTime: number;
+
+  @Prop()
+  dailyPcTime: number;
+
+  @Prop()
+  dailyVgTime: number;
+
+  @Prop()
+  dailySptTime: number;
+
+  @Prop()
+  totalDailyScreenTime: number;
 }
 
 export const ResearchDataSchema = SchemaFactory.createForClass(ResearchData);

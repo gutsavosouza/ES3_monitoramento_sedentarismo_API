@@ -113,15 +113,59 @@ export class ResearchSeed {
             massa !== undefined && massa !== null &&
             estatura !== undefined && estatura !== null
           ) {
-            // verificação de outliers !!
-            const isReasonableWeight = massa > 30 && massa < 200; // 30kg a 200kg
-            const isReasonableHeight = estatura > 100 && estatura < 220; // 1m a 2.2m
+            // Sanity check to avoid outliers from bad data
+            const isReasonableWeight = massa > 30 && massa < 200; // 30kg to 200kg
+            const isReasonableHeight = estatura > 100 && estatura < 220; // 1m to 2.2m
 
             if (isReasonableWeight && isReasonableHeight) {
               const heightInMeters = estatura / 100;
               researchDataDto.bmi = massa / (heightInMeters * heightInMeters);
             }
           }
+
+          // Calculate screen time
+          const calculateDailyAverageMinutes = (
+            hSem: number,
+            minSem: number,
+            hFds: number,
+            minFds: number,
+          ): number => {
+            const totalMinutes =
+              ((hSem || 0) * 5 + (hFds || 0) * 2) * 60 +
+              ((minSem || 0) * 5 + (minFds || 0) * 2);
+            return totalMinutes / 7;
+          };
+
+          researchDataDto.dailyTvTime = calculateDailyAverageMinutes(
+            parsedRow.tvSemH,
+            parsedRow.tvSemMin,
+            parsedRow.tvFdsH,
+            parsedRow.tvFdsMin,
+          );
+          researchDataDto.dailyPcTime = calculateDailyAverageMinutes(
+            parsedRow.pcSemH,
+            parsedRow.pcSemMin,
+            parsedRow.pcFdsH,
+            parsedRow.pcFdsMin,
+          );
+          researchDataDto.dailyVgTime = calculateDailyAverageMinutes(
+            parsedRow.vgSemH,
+            parsedRow.vgSemMin,
+            parsedRow.vgFdsH,
+            parsedRow.vgFdsMin,
+          );
+          researchDataDto.dailySptTime = calculateDailyAverageMinutes(
+            parsedRow.sptSemH,
+            parsedRow.sptSemMin,
+            parsedRow.sptFdsH,
+            parsedRow.sptFdsMin,
+          );
+
+          researchDataDto.totalDailyScreenTime =
+            researchDataDto.dailyTvTime +
+            researchDataDto.dailyPcTime +
+            researchDataDto.dailyVgTime +
+            researchDataDto.dailySptTime;
 
           if (researchDataDto.studentId) {
             results.push(researchDataDto);

@@ -12,4 +12,8 @@ export class ResearchService {
   async getBmiByAgeAndGender() {
     return this.researchRepository.getBmiByAgeAndGender();
   }
+
+  async getAverageScreenTimeByGender() {
+    return this.researchRepository.getAverageScreenTimeByGender();
+  }
 }

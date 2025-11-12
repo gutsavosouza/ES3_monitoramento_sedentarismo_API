@@ -128,4 +128,36 @@ export class ResearchRepository {
       ])
       .exec();
   }
+
+  async getAverageScreenTimeByGender(): Promise<any[]> {
+    return this.researchModel
+      .aggregate([
+        {
+          $group: {
+            _id: {
+              $cond: {
+                if: { $eq: ['$sexo', 1] },
+                then: 'Masculino',
+                else: 'Feminino',
+              },
+            },
+            averageTvTime: { $avg: '$dailyTvTime' },
+            averagePcTime: { $avg: '$dailyPcTime' },
+            averageVgTime: { $avg: '$dailyVgTime' },
+            averageSptTime: { $avg: '$dailySptTime' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            gender: '$_id',
+            averageTvTime: 1,
+            averagePcTime: 1,
+            averageVgTime: 1,
+            averageSptTime: 1,
+          },
+        },
+      ])
+      .exec();
+  }
 }

@@ -156,4 +156,24 @@ export class CreateResearchDataDto {
   @IsNumber()
   @IsOptional()
   bmi?: number;
+
+  @IsNumber()
+  @IsOptional()
+  dailyTvTime?: number;
+
+  @IsNumber()
+  @IsOptional()
+  dailyPcTime?: number;
+
+  @IsNumber()
+  @IsOptional()
+  dailyVgTime?: number;
+
+  @IsNumber()
+  @IsOptional()
+  dailySptTime?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalDailyScreenTime?: number;
 }

@@ -16,4 +16,18 @@ export class ResearchService {
   async getAverageScreenTimeByGender() {
     return this.researchRepository.getAverageScreenTimeByGender();
   }
+
+  async getAveragePhysicalActivityByGender() {
+    const data =
+      await this.researchRepository.getAveragePhysicalActivityByGender();
+    return { data };
+  }
+
+  async getAveragePhysicalActivityByGenderByYear(year: number) {
+    const data =
+      await this.researchRepository.getAveragePhysicalActivityByGenderByYear(
+        year,
+      );
+    return { data };
+  }
 }

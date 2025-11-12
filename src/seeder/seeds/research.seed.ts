@@ -110,8 +110,10 @@ export class ResearchSeed {
           const { massa, estatura } = researchDataDto;
 
           if (
-            massa !== undefined && massa !== null &&
-            estatura !== undefined && estatura !== null
+            massa !== undefined &&
+            massa !== null &&
+            estatura !== undefined &&
+            estatura !== null
           ) {
             // Sanity check to avoid outliers from bad data
             const isReasonableWeight = massa > 30 && massa < 200; // 30kg to 200kg

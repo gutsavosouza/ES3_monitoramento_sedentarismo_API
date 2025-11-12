@@ -14,9 +14,7 @@ export class ResearchRepository {
     private readonly researchModel: Model<ResearchDataDocument>,
   ) {}
 
-  /**
-   * Encontra todos os registos na coleção.
-   */
+
   async findAll(): Promise<ResearchData[]> {
     return this.researchModel.find().exec();
   }
@@ -155,6 +153,133 @@ export class ResearchRepository {
             averagePcTime: 1,
             averageVgTime: 1,
             averageSptTime: 1,
+          },
+        },
+      ])
+      .exec();
+  }
+
+  async getAveragePhysicalActivityByGender(): Promise<any[]> {
+    return this.researchModel
+      .aggregate([
+        {
+          $match: {
+            diasAFMV: { $ne: null, $exists: true },
+            afmvH: { $ne: null, $exists: true },
+            afmvMin: { $ne: null, $exists: true },
+          },
+        },
+        {
+          $project: {
+            sexo: 1,
+            dailyActivityMinutes: {
+              $divide: [
+                {
+                  $multiply: [
+                    { $add: [{ $multiply: ['$afmvH', 60] }, '$afmvMin'] },
+                    '$diasAFMV',
+                  ],
+                },
+                7,
+              ],
+            },
+          },
+        },
+        {
+          //filtro de outliers !!
+          $match: {
+            dailyActivityMinutes: { $lte: 1440 },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $cond: {
+                if: { $eq: ['$sexo', 1] },
+                then: 'Masculino',
+                else: 'Feminino',
+              },
+            },
+            averageDailyActivity: { $avg: '$dailyActivityMinutes' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            gender: '$_id',
+            averageDailyActivity: 1,
+          },
+        },
+        {
+          $sort: {
+            gender: 1,
+          },
+        },
+      ])
+      .exec();
+  }
+
+  async getAveragePhysicalActivityByGenderByYear(
+    year: number,
+  ): Promise<any[]> {
+    return this.researchModel
+      .aggregate([
+        {
+          $match: {
+            year: year,
+          },
+        },
+        {
+          $match: {
+            diasAFMV: { $ne: null, $exists: true },
+            afmvH: { $ne: null, $exists: true },
+            afmvMin: { $ne: null, $exists: true },
+          },
+        },
+        {
+          $project: {
+            sexo: 1,
+            dailyActivityMinutes: {
+              $divide: [
+                {
+                  $multiply: [
+                    { $add: [{ $multiply: ['$afmvH', 60] }, '$afmvMin'] },
+                    '$diasAFMV',
+                  ],
+                },
+                7,
+              ],
+            },
+          },
+        },
+        {
+          // filtro de outliers !!
+          $match: {
+            dailyActivityMinutes: { $lte: 1440 },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $cond: {
+                if: { $eq: ['$sexo', 1] },
+                then: 'Masculino',
+                else: 'Feminino',
+              },
+            },
+            averageDailyActivity: { $avg: '$dailyActivityMinutes' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            gender: '$_id',
+            averageDailyActivity: 1,
+          },
+        },
+        {
+          $sort: {
+            gender: 1,
           },
         },
       ])

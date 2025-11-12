@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { Activity, ActivityDocument } from './schemas/activity.schema';
 import { CreateActivityDTO } from './dtos/create-activity.dto';
+import { ActivityType } from './enums/activity-type.enum';
+import { ActivityItensity } from './enums/activity-intensity.enum';
 @Injectable()
 export class ActivitiesRepository {
   constructor(
@@ -10,15 +12,15 @@ export class ActivitiesRepository {
   ) {}
 
   async create(
-    userId: any,
+    userId: Types.ObjectId,
     createData: CreateActivityDTO,
-    rankingId: any,
+    rankingId: Types.ObjectId,
     isConfirmed: boolean,
   ): Promise<Activity> {
     const createdActivity = await this.activityModel.create({
       ...createData,
-      userId,
-      rankingId,
+      userId: new Types.ObjectId(userId),
+      rankingId: new Types.ObjectId(rankingId),
       isConfirmed,
     });
 
@@ -27,7 +29,11 @@ export class ActivitiesRepository {
 
   async createMany(
     activitiesData: {
-      activityDetails: CreateActivityDTO;
+      ocurredAt: Date;
+      type: ActivityType;
+      description: string;
+      timeSpentInSeconds: number;
+      intesity: ActivityItensity;
       userId: any;
       rankingId: any;
       createdBy: any;
@@ -42,11 +48,13 @@ export class ActivitiesRepository {
   }
 
   async findByUserId(
-    userId: any,
+    userId: Types.ObjectId,
     startDate?: Date,
     endDate?: Date,
   ): Promise<Activity[]> {
-    const filter: FilterQuery<ActivityDocument> = { userId };
+    const filter: FilterQuery<ActivityDocument> = {
+      userId: new Types.ObjectId(userId),
+    };
 
     if (startDate || endDate) {
       filter.ocurredAt = {};
@@ -62,10 +70,15 @@ export class ActivitiesRepository {
   }
 
   async findByUserIdAndRanking(
-    userId: any,
-    rankingId: any,
+    userId: Types.ObjectId,
+    rankingId: Types.ObjectId,
   ): Promise<Activity[]> {
-    const filter: FilterQuery<ActivityDocument> = { userId, rankingId };
+    const filter: FilterQuery<ActivityDocument> = {
+      userId: new Types.ObjectId(userId),
+      rankingId: new Types.ObjectId(rankingId),
+    };
+
+    console.log('filter', filter);
 
     return await this.activityModel.find(filter).sort({ ocurredAt: -1 }).exec();
   }

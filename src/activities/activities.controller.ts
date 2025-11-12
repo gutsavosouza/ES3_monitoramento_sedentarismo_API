@@ -12,6 +12,7 @@ import { ApiBody, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDTO } from './dtos/create-activity.dto';
 import { CreateGroupActivityDTO } from './dtos/create-group-activity.dto';
+import { Types } from 'mongoose';
 
 @Controller('activities')
 export class ActivitiesController {
@@ -68,8 +69,8 @@ export class ActivitiesController {
   })
   @ApiResponse({ status: 404, description: 'Teacher not found.' })
   createGroupActivity(
-    @Param('teacherId') teacherId: string,
-    @Param('rankingId') rankingId: string,
+    @Param('teacherId') teacherId: Types.ObjectId,
+    @Param('rankingId') rankingId: Types.ObjectId,
     @Body() createGroupActivityDto: CreateGroupActivityDTO,
   ) {
     return this.activitiesService.createGroupActivity(

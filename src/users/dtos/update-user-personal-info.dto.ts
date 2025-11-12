@@ -37,4 +37,13 @@ export class UpdateUserPersonalInfoDTO {
   @IsString()
   @IsOptional()
   city?: string;
+
+  @ApiProperty({
+    example: 'Mata Norte',
+    required: false,
+    description: "User's GRE name",
+  })
+  @IsString()
+  @IsOptional()
+  gre: string;
 }

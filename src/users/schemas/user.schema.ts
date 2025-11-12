@@ -26,6 +26,9 @@ export class User extends Document {
 
   @Prop({ required: false, default: null })
   city: string;
+
+  @Prop({ required: false, default: null })
+  gre: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

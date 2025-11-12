@@ -86,4 +86,14 @@ export class UsersController {
   ) {
     return this.userService.updateStudentData(email, updateData);
   }
+
+  @ApiResponse({
+    status: 200,
+    description: 'User information retrieved successfully.',
+  })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  @Get('info/:email')
+  async getUserInfo(@Param('email') email: string) {
+    return this.userService.getUserInfo(email);
+  }
 }

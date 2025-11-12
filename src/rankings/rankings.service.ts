@@ -10,6 +10,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import generate from 'random-string';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { Ranking } from './schemas/rankings.schema';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class RankingsService {
@@ -36,7 +37,11 @@ export class RankingsService {
       throw new ForbiddenException('Usuário não é um professor.');
     }
 
-    return this.rankingRepository.create(createData, teacherId, joinCode);
+    return this.rankingRepository.create(
+      createData,
+      teacher._id as mongoose.Types.ObjectId,
+      joinCode,
+    );
   }
 
   async join(code: string, studentId: any) {

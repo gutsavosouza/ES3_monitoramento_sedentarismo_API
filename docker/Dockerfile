@@ -12,4 +12,6 @@ RUN yarn install
 
 COPY ../src src/
 
+RUN yarn run build
+
 CMD ["yarn", "start:dev"]

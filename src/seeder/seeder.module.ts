@@ -6,7 +6,6 @@ import { ActivitiesSeed } from './seeds/activities.seed';
 import { UsersModule } from 'src/users/users.module';
 import { RankingsModule } from 'src/rankings/rankings.module';
 import { ActivitiesModule } from 'src/activities/activities.module';
-
 @Module({
   imports: [
     forwardRef(() => UsersModule),

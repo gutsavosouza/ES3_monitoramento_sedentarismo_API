@@ -57,6 +57,31 @@ export class UsersService {
     return teacher;
   }
 
+  async getUserInfo(email: string): Promise<{
+    user: User;
+    studentData?: StudentData;
+  }> {
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    if (user.role !== UserRole.STUDENT) {
+      return { user };
+    }
+    const studentData = await this.studentDataRepository.findById(user._id);
+
+    if (!studentData) {
+      throw new NotFoundException('Dados do estudante não encontrados.');
+    }
+
+    return {
+      user: user.toObject?.() ?? user,
+      studentData: studentData.toObject?.() ?? studentData,
+    };
+  }
+
   async updateUserPersonalData(
     email: string,
     updateData: UpdateUserPersonalInfoDTO,

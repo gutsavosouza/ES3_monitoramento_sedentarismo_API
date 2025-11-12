@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ResearchRepository } from './research.repository';
+import { GetResearchDataDto, ResearchType } from './dtos/get-research-data.dto';
 
 @Injectable()
 export class ResearchService {
@@ -9,25 +10,18 @@ export class ResearchService {
     return this.researchRepository.findAll();
   }
 
-  async getBmiByAgeAndGender() {
-    return this.researchRepository.getBmiByAgeAndGender();
-  }
-
-  async getAverageScreenTimeByGender() {
-    return this.researchRepository.getAverageScreenTimeByGender();
-  }
-
-  async getAveragePhysicalActivityByGender() {
-    const data =
-      await this.researchRepository.getAveragePhysicalActivityByGender();
-    return { data };
-  }
-
-  async getAveragePhysicalActivityByGenderByYear(year: number) {
-    const data =
-      await this.researchRepository.getAveragePhysicalActivityByGenderByYear(
-        year,
-      );
-    return { data };
+  async getResearchData(filters: GetResearchDataDto) {
+    switch (filters.researchType) {
+      case ResearchType.BMI:
+        return this.researchRepository.getBmiByAgeAndGender(filters);
+      case ResearchType.SCREEN_TIME:
+        return this.researchRepository.getAverageScreenTimeByGender(filters);
+      case ResearchType.PHYSICAL_ACTIVITY:
+        return this.researchRepository.getAveragePhysicalActivityByGender(
+          filters,
+        );
+      default:
+        return [];
+    }
   }
 }

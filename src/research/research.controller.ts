@@ -1,8 +1,13 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AveragePhysicalActivityByGenderResponseDto } from './dtos/average-physical-activity-by-gender-response.dto';
-import { BmiByAgeGenderResponseDto } from './dtos/bmi-by-age-gender-response.dto';
-import { ScreenTimeByGenderResponseDto } from './dtos/screen-time-by-gender-response.dto';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ResearchType } from './dtos/get-research-data.dto';
+import { GetResearchDataQueryDto } from './dtos/get-research-data-query.dto';
 import { ResearchService } from './research.service';
 
 @ApiTags('Research')
@@ -11,55 +16,71 @@ export class ResearchController {
   constructor(private readonly researchService: ResearchService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all research records',
+    description: 'Retrieves all available research records without any filters.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'All research records returned successfully.',
+  })
   findAll() {
     return this.researchService.findAll();
   }
 
-  @Get('bmi-by-age-gender')
-  @ApiOperation({ summary: 'Obtém a média do IMC por faixa etária e gênero' })
-  @ApiOkResponse({
-    description: 'Dados retornados com sucesso.',
-    type: [BmiByAgeGenderResponseDto],
-  })
-  async getBmiByAgeAndGender() {
-    return this.researchService.getBmiByAgeAndGender();
-  }
-
-  @Get('screen-time-by-gender')
+  @Get('query/:researchType')
   @ApiOperation({
-    summary: 'Obtém o tempo de tela médio por gênero e dispositivo',
+    summary: 'Advanced search for research data',
+    description:
+      'Performs an aggregate search on research data based on a research type and optional filters.',
   })
-  @ApiOkResponse({
-    description: 'Dados retornados com sucesso.',
-    type: [ScreenTimeByGenderResponseDto],
+  @ApiParam({
+    name: 'researchType',
+    required: true,
+    description: 'The type of research to be performed.',
+    enum: ResearchType,
   })
-  async getAverageScreenTimeByGender() {
-    return this.researchService.getAverageScreenTimeByGender();
-  }
-
-  @Get('average-physical-activity-by-gender')
-  @ApiOperation({
-    summary: 'Obtém a média de atividade física diária por gênero',
+  @ApiQuery({
+    name: 'sexo',
+    required: false,
+    type: Number,
+    description: 'Filter by gender (1 for Male, 2 for Female).',
   })
-  @ApiOkResponse({
-    description: 'Dados retornados com sucesso.',
-    type: AveragePhysicalActivityByGenderResponseDto,
+  @ApiQuery({
+    name: 'idade',
+    required: false,
+    type: Number,
+    description: 'Filter by age.',
   })
-  async getAveragePhysicalActivityByGender() {
-    return this.researchService.getAveragePhysicalActivityByGender();
-  }
-
-  @Get('average-physical-activity-by-gender/:year')
-  @ApiOperation({
-    summary: 'Obtém a média de atividade física diária por gênero e ano',
+  @ApiQuery({
+    name: 'gre',
+    required: false,
+    type: Number,
+    description: 'Filter by GRE (Regional Education Management).',
+    enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
   })
-  @ApiOkResponse({
-    description: 'Dados retornados com sucesso.',
-    type: AveragePhysicalActivityByGenderResponseDto,
+  @ApiQuery({
+    name: 'serie',
+    required: false,
+    type: Number,
+    description: 'Filter by school grade.',
+    enum: [1, 2, 3],
   })
-  async getAveragePhysicalActivityByGenderByYear(
-    @Param('year', ParseIntPipe) year: number,
+  @ApiQuery({
+    name: 'year',
+    required: false,
+    type: Number,
+    description: 'Filter by research year.',
+    enum: [2016, 2022],
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Research data returned successfully.',
+  })
+  async getResearchData(
+    @Param('researchType') researchType: ResearchType,
+    @Query() filters: GetResearchDataQueryDto,
   ) {
-    return this.researchService.getAveragePhysicalActivityByGenderByYear(year);
+    return this.researchService.getResearchData({ ...filters, researchType });
   }
 }

@@ -6,6 +6,15 @@ import {
   ResearchData,
   ResearchDataDocument,
 } from './schemas/research-data.schema';
+import { GetResearchDataDto } from './dtos/get-research-data.dto';
+
+interface Match {
+  sexo?: number;
+  idade?: number;
+  gre?: number;
+  serie?: number;
+  year?: number;
+}
 
 @Injectable()
 export class ResearchRepository {
@@ -14,6 +23,15 @@ export class ResearchRepository {
     private readonly researchModel: Model<ResearchDataDocument>,
   ) {}
 
+  private buildMatchStage(filters: GetResearchDataDto): { $match: Match } {
+    const match: Match = {};
+    if (filters.sexo) match.sexo = filters.sexo;
+    if (filters.idade) match.idade = filters.idade;
+    if (filters.gre) match.gre = filters.gre;
+    if (filters.serie) match.serie = filters.serie;
+    if (filters.year) match.year = filters.year;
+    return { $match: match };
+  }
 
   async findAll(): Promise<ResearchData[]> {
     return this.researchModel.find().exec();
@@ -39,9 +57,12 @@ export class ResearchRepository {
     await this.researchModel.deleteMany({});
   }
 
-  async getBmiByAgeAndGender(): Promise<any[]> {
+  async getBmiByAgeAndGender(filters: GetResearchDataDto): Promise<any[]> {
+    const matchStage = this.buildMatchStage(filters);
+
     return this.researchModel
-      .aggregate([
+      .aggregate<any>([
+        matchStage,
         {
           $match: {
             idade: { $gte: 14, $lte: 19 },
@@ -127,9 +148,13 @@ export class ResearchRepository {
       .exec();
   }
 
-  async getAverageScreenTimeByGender(): Promise<any[]> {
+  async getAverageScreenTimeByGender(
+    filters: GetResearchDataDto,
+  ): Promise<any[]> {
+    const matchStage = this.buildMatchStage(filters);
     return this.researchModel
-      .aggregate([
+      .aggregate<any>([
+        matchStage,
         {
           $group: {
             _id: {
@@ -159,9 +184,13 @@ export class ResearchRepository {
       .exec();
   }
 
-  async getAveragePhysicalActivityByGender(): Promise<any[]> {
+  async getAveragePhysicalActivityByGender(
+    filters: GetResearchDataDto,
+  ): Promise<any[]> {
+    const matchStage = this.buildMatchStage(filters);
     return this.researchModel
-      .aggregate([
+      .aggregate<any>([
+        matchStage,
         {
           $match: {
             diasAFMV: { $ne: null, $exists: true },
@@ -187,73 +216,6 @@ export class ResearchRepository {
         },
         {
           //filtro de outliers !!
-          $match: {
-            dailyActivityMinutes: { $lte: 1440 },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              $cond: {
-                if: { $eq: ['$sexo', 1] },
-                then: 'Masculino',
-                else: 'Feminino',
-              },
-            },
-            averageDailyActivity: { $avg: '$dailyActivityMinutes' },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            gender: '$_id',
-            averageDailyActivity: 1,
-          },
-        },
-        {
-          $sort: {
-            gender: 1,
-          },
-        },
-      ])
-      .exec();
-  }
-
-  async getAveragePhysicalActivityByGenderByYear(
-    year: number,
-  ): Promise<any[]> {
-    return this.researchModel
-      .aggregate([
-        {
-          $match: {
-            year: year,
-          },
-        },
-        {
-          $match: {
-            diasAFMV: { $ne: null, $exists: true },
-            afmvH: { $ne: null, $exists: true },
-            afmvMin: { $ne: null, $exists: true },
-          },
-        },
-        {
-          $project: {
-            sexo: 1,
-            dailyActivityMinutes: {
-              $divide: [
-                {
-                  $multiply: [
-                    { $add: [{ $multiply: ['$afmvH', 60] }, '$afmvMin'] },
-                    '$diasAFMV',
-                  ],
-                },
-                7,
-              ],
-            },
-          },
-        },
-        {
-          // filtro de outliers !!
           $match: {
             dailyActivityMinutes: { $lte: 1440 },
           },

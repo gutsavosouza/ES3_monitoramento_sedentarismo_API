@@ -138,29 +138,44 @@ export class ResearchSeed {
             return totalMinutes / 7;
           };
 
-          researchDataDto.dailyTvTime = calculateDailyAverageMinutes(
-            parsedRow.tvSemH,
-            parsedRow.tvSemMin,
-            parsedRow.tvFdsH,
-            parsedRow.tvFdsMin,
+          const capAt = (value: number, max: number) => Math.min(value, max);
+          const MINUTES_IN_A_DAY = 1440;
+
+          researchDataDto.dailyTvTime = capAt(
+            calculateDailyAverageMinutes(
+              parsedRow.tvSemH,
+              parsedRow.tvSemMin,
+              parsedRow.tvFdsH,
+              parsedRow.tvFdsMin,
+            ),
+            MINUTES_IN_A_DAY,
           );
-          researchDataDto.dailyPcTime = calculateDailyAverageMinutes(
-            parsedRow.pcSemH,
-            parsedRow.pcSemMin,
-            parsedRow.pcFdsH,
-            parsedRow.pcFdsMin,
+          researchDataDto.dailyPcTime = capAt(
+            calculateDailyAverageMinutes(
+              parsedRow.pcSemH,
+              parsedRow.pcSemMin,
+              parsedRow.pcFdsH,
+              parsedRow.pcFdsMin,
+            ),
+            MINUTES_IN_A_DAY,
           );
-          researchDataDto.dailyVgTime = calculateDailyAverageMinutes(
-            parsedRow.vgSemH,
-            parsedRow.vgSemMin,
-            parsedRow.vgFdsH,
-            parsedRow.vgFdsMin,
+          researchDataDto.dailyVgTime = capAt(
+            calculateDailyAverageMinutes(
+              parsedRow.vgSemH,
+              parsedRow.vgSemMin,
+              parsedRow.vgFdsH,
+              parsedRow.vgFdsMin,
+            ),
+            MINUTES_IN_A_DAY,
           );
-          researchDataDto.dailySptTime = calculateDailyAverageMinutes(
-            parsedRow.sptSemH,
-            parsedRow.sptSemMin,
-            parsedRow.sptFdsH,
-            parsedRow.sptFdsMin,
+          researchDataDto.dailySptTime = capAt(
+            calculateDailyAverageMinutes(
+              parsedRow.sptSemH,
+              parsedRow.sptSemMin,
+              parsedRow.sptFdsH,
+              parsedRow.sptFdsMin,
+            ),
+            MINUTES_IN_A_DAY,
           );
 
           researchDataDto.totalDailyScreenTime =

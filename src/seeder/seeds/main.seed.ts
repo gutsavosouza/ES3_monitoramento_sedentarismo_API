@@ -11,8 +11,8 @@ import { ActivitiesSeed } from './activities.seed';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { User } from 'src/users/schemas/user.schema';
 import { Ranking } from 'src/rankings/schemas/rankings.schema';
+import { ResearchSeed } from './research.seed';
 import { Activity } from 'src/activities/schemas/activity.schema';
-
 @Injectable()
 export class MainSeed {
   private readonly logger = new Logger(MainSeed.name);
@@ -25,6 +25,7 @@ export class MainSeed {
     private readonly usersSeed: UsersSeed,
     private readonly rankingsSeed: RankingsSeed,
     private readonly activitiesSeed: ActivitiesSeed,
+    private readonly researchSeed: ResearchSeed,
   ) {}
 
   async run(): Promise<void> {
@@ -61,6 +62,9 @@ export class MainSeed {
         'Activities seeding did not create any activities. Check logs for details.',
       );
     }
+
+    await this.researchSeed.seed();
+
     this.logger.log('--- Database seeding process finished successfully. ---');
   }
 
@@ -70,6 +74,7 @@ export class MainSeed {
     await this.activitiesSeed.cleanup(this.seededActivities);
     await this.rankingsSeed.cleanup(this.seededRankings);
     await this.usersSeed.cleanup(this.seededUsers);
+    await this.researchSeed.cleanup();
 
     this.logger.log('--- Database cleaning process finished successfully. ---');
   }

@@ -10,7 +10,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import generate from 'random-string';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { Ranking } from './schemas/rankings.schema';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 @Injectable()
 export class RankingsService {
@@ -119,5 +119,19 @@ export class RankingsService {
       throw new NotFoundException('Ranking não encontrado.');
     }
     await this.rankingRepository.deleteById(rankingId);
+  }
+
+  async getAllRankingsByParticipant(studentId: any): Promise<Ranking[]> {
+    const user = await this.usersRepository.findById(studentId);
+
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    if (user.role !== UserRole.STUDENT) {
+      throw new ForbiddenException('Usuário não é um estudante.');
+    }
+
+    return this.rankingRepository.findAllByParticipantId(studentId);
   }
 }

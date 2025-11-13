@@ -76,4 +76,20 @@ export class RankingsController {
   getAllRankings(@Param('teacherId') teacherId: string) {
     return this.rankingsService.getAllRankings(teacherId);
   }
+
+  @Get('/participant/:studentId')
+  @ApiParam({
+    name: 'studentId',
+    description: 'The ID of the student to retrieve rankings from.',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all rankings that include this participant.',
+  })
+  @ApiResponse({ status: 404, description: 'Student not found.' })
+  @ApiResponse({ status: 403, description: 'User is not a student.' })
+  getAllRankingsByParticipant(@Param('studentId') studentId: string) {
+    return this.rankingsService.getAllRankingsByParticipant(studentId);
+  }
 }

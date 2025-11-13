@@ -52,4 +52,12 @@ export class RankingsRepository {
   async deleteById(rankingId: any): Promise<void> {
     await this.rankingModel.findByIdAndDelete(rankingId).exec();
   }
+
+  async findAllByParticipantId(
+    participantId: mongoose.Types.ObjectId,
+  ): Promise<Ranking[]> {
+    return this.rankingModel
+      .find({ participants: new Types.ObjectId(participantId) })
+      .exec();
+  }
 }

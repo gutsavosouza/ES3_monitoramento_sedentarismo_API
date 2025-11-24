@@ -134,4 +134,16 @@ export class RankingsService {
 
     return this.rankingRepository.findAllByParticipantId(studentId);
   }
+
+  async getAllParticipantsFromRanking(
+    rankingId: Types.ObjectId,
+  ): Promise<Partial<Ranking> | null> {
+    const ranking = await this.rankingRepository.findById(rankingId);
+
+    if (!ranking) {
+      throw new NotFoundException('Ranking não encontrado.');
+    }
+
+    return this.rankingRepository.getAllParticipants(rankingId);
+  }
 }

@@ -45,16 +45,16 @@ export class ActivitiesService {
       throw new ForbiddenException('Usuário não é um estudante.');
     }
 
-    if (!ranking) {
-      throw new NotFoundException('O ranking não existe.');
-    }
-
-    if (
-      !ranking.participants.some((participantId) =>
-        participantId.equals(user._id as any),
-      )
-    ) {
-      throw new ForbiddenException('O usuário não está no ranking informado.');
+    if (ranking) {
+      if (
+        !ranking.participants.some((participantId) =>
+          participantId.equals(user._id as any),
+        )
+      ) {
+        throw new ForbiddenException(
+          'O usuário não está no ranking informado.',
+        );
+      }
     }
 
     return this.activitiesRepository.create(

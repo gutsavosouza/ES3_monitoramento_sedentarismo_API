@@ -14,13 +14,13 @@ export class ActivitiesRepository {
   async create(
     userId: Types.ObjectId,
     createData: CreateActivityDTO,
-    rankingId: Types.ObjectId,
+    rankingId: Types.ObjectId | null,
     isConfirmed: boolean,
   ): Promise<Activity> {
     const createdActivity = await this.activityModel.create({
       ...createData,
       userId: new Types.ObjectId(userId),
-      rankingId: new Types.ObjectId(rankingId),
+      rankingId: rankingId ? new Types.ObjectId(rankingId) : null,
       isConfirmed,
     });
 
@@ -78,7 +78,7 @@ export class ActivitiesRepository {
       rankingId: new Types.ObjectId(rankingId),
     };
 
-    console.log('filter', filter);
+    // console.log('filter', filter);
 
     return await this.activityModel.find(filter).sort({ ocurredAt: -1 }).exec();
   }

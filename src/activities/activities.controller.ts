@@ -69,13 +69,13 @@ export class ActivitiesController {
   })
   @ApiResponse({ status: 404, description: 'Teacher not found.' })
   createGroupActivity(
-    @Param('teacherId') teacherId: Types.ObjectId,
-    @Param('rankingId') rankingId: Types.ObjectId,
+    @Param('teacherId') teacherId: string,
+    @Param('rankingId') rankingId: string,
     @Body() createGroupActivityDto: CreateGroupActivityDTO,
   ) {
     return this.activitiesService.createGroupActivity(
-      teacherId,
-      rankingId,
+      new Types.ObjectId(teacherId),
+      new Types.ObjectId(rankingId),
       createGroupActivityDto,
     );
   }
@@ -166,6 +166,7 @@ export class ActivitiesController {
     status: 200,
     description: 'Returns the total points for the user across all activities.',
   })
+  @ApiResponse({ status: 404, description: 'User not found.' })
   getUserTotalPoints(
     @Param('userId') userId: string,
     @Query('startDate') startDate?: Date,
@@ -175,6 +176,37 @@ export class ActivitiesController {
       userId,
       startDate,
       endDate,
+    );
+  }
+
+  @Get('/all/ranking/:rankingId')
+  @ApiParam({ name: 'rankingId', description: 'The ID of the ranking' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all activities from the desired ranking.',
+  })
+  @ApiResponse({ status: 404, description: 'Ranking not found.' })
+  getAllActivitiesByRanking(@Param('rankingId') rankingId: string) {
+    return this.activitiesService.getAllActivitiesByRanking(
+      new Types.ObjectId(rankingId),
+    );
+  }
+
+  @Get('/all/creator/:creatorId')
+  @ApiParam({
+    name: 'creatorId',
+    description: 'The ID of the user that created the activity',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all activities from the desired creator(user).',
+  })
+  getAllActivitiesByCreator(@Param('creatorId') creatorId: string) {
+    return (
+      this,
+      this.activitiesService.getAllActivitiesByCreator(
+        new Types.ObjectId(creatorId),
+      )
     );
   }
 }

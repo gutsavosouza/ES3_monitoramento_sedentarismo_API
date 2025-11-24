@@ -62,6 +62,7 @@ export class ActivitiesService {
       createData,
       rankingId,
       true,
+      userId,
     );
   }
 
@@ -207,6 +208,30 @@ export class ActivitiesService {
       throw new NotFoundException('Atividade não encontrada.');
     }
     await this.activitiesRepository.deleteById(activityId);
+  }
+
+  async getAllActivitiesByCreator(
+    creatorId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const creator = await this.usersRepository.findById(creatorId);
+
+    if (!creator) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    return this.activitiesRepository.getAllActivitiesByCreator(creatorId);
+  }
+
+  async getAllActivitiesByRanking(
+    rankingId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const ranking = await this.rankingRepository.findById(rankingId);
+
+    if (!ranking) {
+      throw new NotFoundException('O ranking não existe.');
+    }
+
+    return this.activitiesRepository.getAllActivitiesByRanking(rankingId);
   }
 
   private _calculateActivityScore(activity: Activity): number {

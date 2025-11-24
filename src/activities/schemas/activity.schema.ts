@@ -16,7 +16,7 @@ export class Activity extends Document {
   rankingId?: Ranking;
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User', required: false })
-  createdBy?: User;
+  createdBy: User;
 
   // if the student created the actiity this will be set to true
   // if the teacher created the activity, they will need to confirm it

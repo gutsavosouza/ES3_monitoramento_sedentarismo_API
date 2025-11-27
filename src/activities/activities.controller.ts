@@ -79,11 +79,16 @@ export class ActivitiesController {
       createGroupActivityDto,
     );
   }
-
-  @Patch(':activityId/confirm')
+  // 
+  // 
+  @Patch(':teacherId/:activityId/confirm')
   @ApiParam({
     name: 'activityId',
     description: 'The ID of the activity to confirm',
+  })
+  @ApiParam({
+    name: 'teacherId',
+    description: 'The ID of the teacher who is trying to confirm the activity',
   })
   @ApiResponse({
     status: 200,
@@ -94,8 +99,10 @@ export class ActivitiesController {
     description: 'Forbidden. Only the activity creator can confirm.',
   })
   @ApiResponse({ status: 404, description: 'Activity or teacher not found.' })
-  confirmParticipation(@Req() req, @Param('activityId') activityId: string) {
-    const teacherId = req.user.userId;
+  confirmParticipation(
+    @Param('activityId') activityId: string,
+    @Param('teacherId') teacherId: string,
+  ) {
     return this.activitiesService.confirmParticipation(activityId, teacherId);
   }
 

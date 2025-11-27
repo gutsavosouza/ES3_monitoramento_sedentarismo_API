@@ -101,8 +101,8 @@ export class ActivitiesService {
   }
 
   async confirmParticipation(
-    activityId: any,
-    teacherId: any,
+    activityId: string,
+    teacherId: string,
   ): Promise<Activity | null> {
     const activity = await this.activitiesRepository.findById(activityId);
     const teacher = await this.usersRepository.findById(teacherId);
@@ -118,8 +118,7 @@ export class ActivitiesService {
     if (!activity) {
       throw new NotFoundException('Ativida não encontrada.');
     }
-
-    if (activity.createdBy !== teacherId) {
+    if (!activity.createdBy.equals(teacher._id as any)) {
       throw new ForbiddenException(
         'Apenas o criador da atividade pode confirmá-la.',
       );

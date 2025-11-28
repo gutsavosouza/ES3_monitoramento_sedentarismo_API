@@ -30,8 +30,8 @@ export class ActivitiesService {
   ) {}
 
   async createStudentActivity(
-    userId: any,
-    rankingId: any,
+    userId: Types.ObjectId,
+    rankingId: Types.ObjectId | null,
     createData: CreateActivityDTO,
   ): Promise<Activity> {
     const user = await this.usersRepository.findById(userId);
@@ -231,6 +231,18 @@ export class ActivitiesService {
     }
 
     return this.activitiesRepository.getAllActivitiesByRanking(rankingId);
+  }
+
+  async getAllActivitiesWithNoRanking(
+    userId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const user = await this.usersRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    return await this.activitiesRepository.getAllActivitesWithNoRanking(userId);
   }
 
   private _calculateActivityScore(activity: Activity): number {

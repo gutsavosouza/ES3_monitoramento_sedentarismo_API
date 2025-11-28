@@ -150,4 +150,10 @@ export class ActivitiesRepository {
   ): Promise<Activity[]> {
     return this.activityModel.find({ rankingId }).exec();
   }
+
+  async getAllActivitesWithNoRanking(
+    userId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    return this.activityModel.find({ createdBy: userId, rankingId: null });
+  }
 }

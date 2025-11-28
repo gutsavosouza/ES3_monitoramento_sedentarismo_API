@@ -18,10 +18,11 @@ import { Types } from 'mongoose';
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
-  @Post('student/ranking/:rankingId/student/:studentId')
+  @Post('student/:rankingId/:studentId')
   @ApiParam({
     name: 'rankingId',
     description: 'The ID of the ranking this activity belongs to',
+    required: false,
   })
   @ApiParam({
     name: 'studentId',
@@ -37,19 +38,45 @@ export class ActivitiesController {
     description: 'Forbidden. User is not a student or not in the ranking.',
   })
   @ApiResponse({ status: 404, description: 'User or ranking not found.' })
-  createStudentActivity(
+  createStudentActivityWithRanking(
     @Param('studentId') studentId: string,
-    @Param('rankingId') rankingId: string,
     @Body() createActivityDto: CreateActivityDTO,
+    @Param('rankingId') rankingId?: string,
   ) {
     return this.activitiesService.createStudentActivity(
-      studentId,
-      rankingId,
+      new Types.ObjectId(studentId),
+      new Types.ObjectId(rankingId),
       createActivityDto,
     );
   }
 
-  @Post('group/ranking/:rankingId/teacher/:teacherId')
+  @Post('student/:studentId')
+  @ApiParam({
+    name: 'studentId',
+    description: 'The ID of the student performing the activity',
+  })
+  @ApiBody({ type: CreateActivityDTO })
+  @ApiResponse({
+    status: 201,
+    description: 'Activity created successfully.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden. User is not a student or not in the ranking.',
+  })
+  @ApiResponse({ status: 404, description: 'User or ranking not found.' })
+  createStudentActivityWithoutRanking(
+    @Param('studentId') studentId: string,
+    @Body() createActivityDto: CreateActivityDTO,
+  ) {
+    return this.activitiesService.createStudentActivity(
+      new Types.ObjectId(studentId),
+      null,
+      createActivityDto,
+    );
+  }
+
+  @Post('teacher/:teacherId/ranking/:rankingId/')
   @ApiParam({
     name: 'rankingId',
     description: 'The ID of the ranking this activity belongs to',
@@ -79,9 +106,8 @@ export class ActivitiesController {
       createGroupActivityDto,
     );
   }
-  // 
-  // 
-  @Patch(':teacherId/:activityId/confirm')
+
+  @Patch('confirm/:activityId/:teacherId')
   @ApiParam({
     name: 'activityId',
     description: 'The ID of the activity to confirm',
@@ -137,7 +163,7 @@ export class ActivitiesController {
     );
   }
 
-  @Get('user/:userId/ranking/:rankingId/points')
+  @Get('/points/user/:userId/ranking/:rankingId')
   @ApiParam({ name: 'userId', description: 'The ID of the user' })
   @ApiParam({ name: 'rankingId', description: 'The ID of the ranking' })
   @ApiResponse({
@@ -155,7 +181,7 @@ export class ActivitiesController {
     );
   }
 
-  @Get('user/:userId/points')
+  @Get('points/user/:userId')
   @ApiParam({ name: 'userId', description: 'The ID of the user' })
   @ApiQuery({
     name: 'startDate',
@@ -214,6 +240,20 @@ export class ActivitiesController {
       this.activitiesService.getAllActivitiesByCreator(
         new Types.ObjectId(creatorId),
       )
+    );
+  }
+
+  @Get('/all-no-ranking/user/:userId')
+  @ApiParam({ name: 'userId', description: 'The ID of the user' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Returns all activities that are not linked to a ranking from the desired creator(user).',
+  })
+  @ApiResponse({ status: 404, description: 'User does not exist.' })
+  getAllActivitiesNotInRanking(@Param('userId') userId: string) {
+    return this.activitiesService.getAllActivitiesWithNoRanking(
+      new Types.ObjectId(userId),
     );
   }
 }

@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Req, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { RankingsService } from './rankings.service';
 import { CreateRankingDTO } from './dtos/create-ranking.dto';
 import { JoinRankingDTO } from './dtos/join-ranking.dto';
 import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { Types } from 'mongoose';
 
 @Controller('ranking')
 export class RankingsController {
@@ -75,5 +76,38 @@ export class RankingsController {
   @Get('/all/:teacherId')
   getAllRankings(@Param('teacherId') teacherId: string) {
     return this.rankingsService.getAllRankings(teacherId);
+  }
+
+  @Get('/participant/:studentId')
+  @ApiParam({
+    name: 'studentId',
+    description: 'The ID of the student to retrieve rankings from.',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all rankings that include this participant.',
+  })
+  @ApiResponse({ status: 404, description: 'Student not found.' })
+  @ApiResponse({ status: 403, description: 'User is not a student.' })
+  getAllRankingsByParticipant(@Param('studentId') studentId: string) {
+    return this.rankingsService.getAllRankingsByParticipant(studentId);
+  }
+
+  @Get('/participants/:rankingId')
+  @ApiParam({
+    name: 'rankingId',
+    description: 'The ID of the ranking to retrieve participants from.',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all participants from the desired ranking.',
+  })
+  @ApiResponse({ status: 404, description: 'Ranking not found.' })
+  getAllParticipantsFromRanking(@Param('rankingId') rankingId: string) {
+    return this.rankingsService.getAllParticipantsFromRanking(
+      new Types.ObjectId(rankingId),
+    );
   }
 }

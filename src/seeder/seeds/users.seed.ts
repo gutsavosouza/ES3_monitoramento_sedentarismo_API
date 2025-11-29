@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker/locale/pt_BR';
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateUserDTO } from 'src/users/dtos/create-user.dto';
 import { User } from 'src/users/schemas/user.schema';
@@ -18,8 +19,8 @@ export class UsersSeed {
 
     try {
       const [createdStudents, createdTeachers] = await Promise.all([
-        this._createStudents(),
-        this._createTeachers(),
+        this._createStudents(30),
+        this._createTeachers(30),
       ]);
 
       this.logger.log('Seeding de Utilizadores concluído com sucesso.');
@@ -47,19 +48,22 @@ export class UsersSeed {
     }
   }
 
-  private async _createStudents(): Promise<User[]> {
-    const studentsData: CreateUserDTO[] = [
-      {
-        name: 'Luis Fabiano',
-        email: 'luisfab@spfc.com.br',
+  private async _createStudents(count: number): Promise<User[]> {
+    const studentTestUser: CreateUserDTO = {
+      name: 'Aluno Teste',
+      email: 'aluno@teste.com',
+      password: 'senhaforte123',
+    };
+
+    const fakeStudentsData: CreateUserDTO[] = Array.from({ length: count }).map(
+      () => ({
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
         password: 'senhaforte123',
-      },
-      {
-        name: 'Dagoberto',
-        email: 'dagol@spfc.com.br',
-        password: 'senhaforte123',
-      },
-    ];
+      }),
+    );
+
+    const studentsData = [studentTestUser, ...fakeStudentsData];
 
     const studentCreationsPromises = studentsData.map(async (studentDTO) => {
       // 3. VERIFICAR SE O UTILIZADOR JÁ EXISTE
@@ -76,11 +80,16 @@ export class UsersSeed {
     return Promise.all(studentCreationsPromises);
   }
 
-  private async _createTeachers(): Promise<User[]> {
+  private async _createTeachers(count: number): Promise<User[]> {
     const teachersData: CreateUserDTO[] = [
       {
-        name: 'Professor Girafalles',
-        email: 'profgira@email.com',
+        name: 'Professor Um',
+        email: 'prof1@teste.com',
+        password: 'senhaforte123',
+      },
+      {
+        name: 'Professor Dois',
+        email: 'prof2@teste.com',
         password: 'senhaforte123',
       },
     ];

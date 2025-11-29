@@ -1,0 +1,31 @@
+services:
+  es3_database:
+    container_name: es3_database
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - es3_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: app_db
+      MONGO_INITDB_ROOT_USERNAME: ragnaros
+      MONGO_INITDB_ROOT_PASSWORD: mysecretpassword
+    env_file:
+      - ../.env
+
+  es3_api:
+    container_name: es3_api
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    command: yarn run start:prod
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    env_file:
+      - ../.env
+    depends_on:
+      - es3_database
+
+volumes:
+  es3_data:

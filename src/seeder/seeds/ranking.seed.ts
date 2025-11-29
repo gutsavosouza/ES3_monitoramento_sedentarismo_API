@@ -20,28 +20,41 @@ export class RankingsSeed {
 
     try {
       const teacher = teachers[0];
+      const createdRankings: Ranking[] = [];
+      let joinPromises;
 
-      const rankingDTO: CreateRankingDTO = {
-        name: 'Terceiro Ano C',
-        startDate: new Date(),
-        endDate: new Date(new Date().getDate() + 60),
-      };
+      const rankingsDTO: CreateRankingDTO[] = [
+        {
+          name: 'Terceiro Ano C',
+          startDate: new Date(),
+          endDate: new Date(new Date().getDate() + 60),
+        },
+        {
+          name: 'Segundo Ano A',
+          startDate: new Date(),
+          endDate: new Date(new Date().getDate() + 60),
+        },
+      ];
 
-      const createdRanking = await this.rankingService.create(
-        rankingDTO,
-        teacher._id,
-      );
+      for (let ranking of rankingsDTO) {
+        const createdRanking = await this.rankingService.create(
+          ranking,
+          teacher._id,
+        );
 
-      this.logger.log(`Ranking "${createdRanking.name}" created.`);
+        createdRankings.push(createdRanking);
 
-      const joinPromises = students.map((student) =>
-        this.rankingService.join(createdRanking.joinCode, student._id),
-      );
+        this.logger.log(`Ranking "${createdRanking.name}" created.`);
+
+        joinPromises = students.map((student) =>
+          this.rankingService.join(createdRanking.joinCode, student._id),
+        );
+      }
 
       await Promise.all(joinPromises);
 
       this.logger.log('Successfully seeded Rankings.');
-      return [createdRanking];
+      return createdRankings;
     } catch (error) {
       this.logger.error('Failed to seed Rankings.', error);
       return [];

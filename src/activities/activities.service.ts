@@ -11,6 +11,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { RankingsRepository } from 'src/rankings/rankings.repository';
 import { CreateGroupActivityDTO } from './dtos/create-group-activity.dto';
+import { Types } from 'mongoose';
 
 export type ActivityWithScore = Activity & { points: number };
 
@@ -29,8 +30,8 @@ export class ActivitiesService {
   ) {}
 
   async createStudentActivity(
-    userId: any,
-    rankingId: any,
+    userId: Types.ObjectId,
+    rankingId: Types.ObjectId | null,
     createData: CreateActivityDTO,
   ): Promise<Activity> {
     const user = await this.usersRepository.findById(userId);
@@ -44,16 +45,16 @@ export class ActivitiesService {
       throw new ForbiddenException('Usuário não é um estudante.');
     }
 
-    if (!ranking) {
-      throw new NotFoundException('O ranking não existe.');
-    }
-
-    if (
-      !ranking.participants.some((participantId) =>
-        participantId.equals(user._id as any),
-      )
-    ) {
-      throw new ForbiddenException('O usuário não está no ranking informado.');
+    if (ranking) {
+      if (
+        !ranking.participants.some((participantId) =>
+          participantId.equals(user._id as any),
+        )
+      ) {
+        throw new ForbiddenException(
+          'O usuário não está no ranking informado.',
+        );
+      }
     }
 
     return this.activitiesRepository.create(
@@ -61,16 +62,18 @@ export class ActivitiesService {
       createData,
       rankingId,
       true,
+      userId,
     );
   }
 
   async createGroupActivity(
-    teacherId: any,
-    rankingId: any,
+    teacherId: Types.ObjectId,
+    rankingId: Types.ObjectId,
     createData: CreateGroupActivityDTO,
   ): Promise<Activity[]> {
     const { participantIds, ...activityDetails } = createData;
     const teacher = await this.usersRepository.findById(teacherId);
+    const ranking = await this.rankingRepository.findById(rankingId);
 
     if (!teacher) {
       throw new NotFoundException('O usuário não existe.');
@@ -80,20 +83,26 @@ export class ActivitiesService {
       throw new ForbiddenException('Usuário não é um professor.');
     }
 
+    if (!ranking) {
+      throw new NotFoundException('O ranking não existe.');
+    }
+
     const activities = participantIds.map((studentId) => ({
-      activityDetails,
-      userId: studentId,
-      rankingId,
-      createdBy: teacherId,
+      ...activityDetails,
+      userId: new Types.ObjectId(studentId),
+      rankingId: new Types.ObjectId(rankingId),
+      createdBy: new Types.ObjectId(teacherId),
       isConfirmed: false,
     }));
+
+    // console.log('activities', activities);
 
     return this.activitiesRepository.createMany(activities);
   }
 
   async confirmParticipation(
-    activityId: any,
-    teacherId: any,
+    activityId: string,
+    teacherId: string,
   ): Promise<Activity | null> {
     const activity = await this.activitiesRepository.findById(activityId);
     const teacher = await this.usersRepository.findById(teacherId);
@@ -109,8 +118,7 @@ export class ActivitiesService {
     if (!activity) {
       throw new NotFoundException('Ativida não encontrada.');
     }
-
-    if (activity.createdBy !== teacherId) {
+    if (!activity.createdBy.equals(teacher._id as any)) {
       throw new ForbiddenException(
         'Apenas o criador da atividade pode confirmá-la.',
       );
@@ -154,8 +162,8 @@ export class ActivitiesService {
     }
 
     const activities = await this.activitiesRepository.findByUserIdAndRanking(
-      user._id,
-      ranking._id,
+      user._id as Types.ObjectId,
+      ranking._id as Types.ObjectId,
     );
 
     const confirmedActivities = activities.filter((act) => act.isConfirmed);
@@ -199,6 +207,42 @@ export class ActivitiesService {
       throw new NotFoundException('Atividade não encontrada.');
     }
     await this.activitiesRepository.deleteById(activityId);
+  }
+
+  async getAllActivitiesByCreator(
+    creatorId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const creator = await this.usersRepository.findById(creatorId);
+
+    if (!creator) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    return this.activitiesRepository.getAllActivitiesByCreator(creatorId);
+  }
+
+  async getAllActivitiesByRanking(
+    rankingId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const ranking = await this.rankingRepository.findById(rankingId);
+
+    if (!ranking) {
+      throw new NotFoundException('O ranking não existe.');
+    }
+
+    return this.activitiesRepository.getAllActivitiesByRanking(rankingId);
+  }
+
+  async getAllActivitiesWithNoRanking(
+    userId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const user = await this.usersRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    return await this.activitiesRepository.getAllActivitesWithNoRanking(userId);
   }
 
   private _calculateActivityScore(activity: Activity): number {

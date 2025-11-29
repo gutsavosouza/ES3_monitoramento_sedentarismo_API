@@ -215,7 +215,6 @@ export class ResearchRepository {
           },
         },
         {
-          //filtro de outliers !!
           $match: {
             dailyActivityMinutes: { $lte: 1440 },
           },

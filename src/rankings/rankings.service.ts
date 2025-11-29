@@ -10,6 +10,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import generate from 'random-string';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { Ranking } from './schemas/rankings.schema';
+import mongoose, { Types } from 'mongoose';
 
 @Injectable()
 export class RankingsService {
@@ -36,7 +37,11 @@ export class RankingsService {
       throw new ForbiddenException('Usuário não é um professor.');
     }
 
-    return this.rankingRepository.create(createData, teacherId, joinCode);
+    return this.rankingRepository.create(
+      createData,
+      teacher._id as mongoose.Types.ObjectId,
+      joinCode,
+    );
   }
 
   async join(code: string, studentId: any) {
@@ -114,5 +119,31 @@ export class RankingsService {
       throw new NotFoundException('Ranking não encontrado.');
     }
     await this.rankingRepository.deleteById(rankingId);
+  }
+
+  async getAllRankingsByParticipant(studentId: any): Promise<Ranking[]> {
+    const user = await this.usersRepository.findById(studentId);
+
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    if (user.role !== UserRole.STUDENT) {
+      throw new ForbiddenException('Usuário não é um estudante.');
+    }
+
+    return this.rankingRepository.findAllByParticipantId(studentId);
+  }
+
+  async getAllParticipantsFromRanking(
+    rankingId: Types.ObjectId,
+  ): Promise<Partial<Ranking> | null> {
+    const ranking = await this.rankingRepository.findById(rankingId);
+
+    if (!ranking) {
+      throw new NotFoundException('Ranking não encontrado.');
+    }
+
+    return this.rankingRepository.getAllParticipants(rankingId);
   }
 }

@@ -27,4 +27,14 @@ export class GetResearchDataQueryDto {
   @IsNumber()
   @Type(() => Number)
   year?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  page?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  limit?: number;
 }

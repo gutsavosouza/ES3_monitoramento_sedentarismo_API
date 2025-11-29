@@ -20,6 +20,7 @@ export class MainSeed {
   private seededUsers: User[] = [];
   private seededRankings: Ranking[] = [];
   private seededActivities: Activity[] = [];
+  private studentRankingMap: Map<any, any> = new Map();
 
   constructor(
     private readonly usersSeed: UsersSeed,
@@ -46,7 +47,10 @@ export class MainSeed {
       (user) => user.role === UserRole.TEACHER,
     );
 
-    this.seededRankings = await this.rankingsSeed.seed(teachers, students);
+    const createdRankings = await this.rankingsSeed.seed(teachers, students);
+    this.seededRankings = createdRankings;
+    // this.studentRankingMap = studentRankingMap;
+
     if (!this.seededRankings.length) {
       this.logger.warn(
         'Ranking seeding did not create any rankings. Check logs for details.',
@@ -57,6 +61,7 @@ export class MainSeed {
       students,
       this.seededRankings,
     );
+
     if (!this.seededActivities.length) {
       this.logger.warn(
         'Activities seeding did not create any activities. Check logs for details.',

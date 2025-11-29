@@ -60,4 +60,10 @@ export class RankingsRepository {
       .find({ participants: new Types.ObjectId(participantId) })
       .exec();
   }
+
+  async getAllParticipants(
+    rankingId: mongoose.Types.ObjectId,
+  ): Promise<Partial<Ranking> | null> {
+    return this.rankingModel.findById(rankingId, { participants: 1 }).exec();
+  }
 }

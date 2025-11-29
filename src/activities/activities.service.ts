@@ -30,8 +30,8 @@ export class ActivitiesService {
   ) {}
 
   async createStudentActivity(
-    userId: any,
-    rankingId: any,
+    userId: Types.ObjectId,
+    rankingId: Types.ObjectId | null,
     createData: CreateActivityDTO,
   ): Promise<Activity> {
     const user = await this.usersRepository.findById(userId);
@@ -45,16 +45,16 @@ export class ActivitiesService {
       throw new ForbiddenException('Usuário não é um estudante.');
     }
 
-    if (!ranking) {
-      throw new NotFoundException('O ranking não existe.');
-    }
-
-    if (
-      !ranking.participants.some((participantId) =>
-        participantId.equals(user._id as any),
-      )
-    ) {
-      throw new ForbiddenException('O usuário não está no ranking informado.');
+    if (ranking) {
+      if (
+        !ranking.participants.some((participantId) =>
+          participantId.equals(user._id as any),
+        )
+      ) {
+        throw new ForbiddenException(
+          'O usuário não está no ranking informado.',
+        );
+      }
     }
 
     return this.activitiesRepository.create(
@@ -62,6 +62,7 @@ export class ActivitiesService {
       createData,
       rankingId,
       true,
+      userId,
     );
   }
 
@@ -100,8 +101,8 @@ export class ActivitiesService {
   }
 
   async confirmParticipation(
-    activityId: any,
-    teacherId: any,
+    activityId: string,
+    teacherId: string,
   ): Promise<Activity | null> {
     const activity = await this.activitiesRepository.findById(activityId);
     const teacher = await this.usersRepository.findById(teacherId);
@@ -117,8 +118,7 @@ export class ActivitiesService {
     if (!activity) {
       throw new NotFoundException('Ativida não encontrada.');
     }
-
-    if (activity.createdBy !== teacherId) {
+    if (!activity.createdBy.equals(teacher._id as any)) {
       throw new ForbiddenException(
         'Apenas o criador da atividade pode confirmá-la.',
       );
@@ -207,6 +207,42 @@ export class ActivitiesService {
       throw new NotFoundException('Atividade não encontrada.');
     }
     await this.activitiesRepository.deleteById(activityId);
+  }
+
+  async getAllActivitiesByCreator(
+    creatorId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const creator = await this.usersRepository.findById(creatorId);
+
+    if (!creator) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    return this.activitiesRepository.getAllActivitiesByCreator(creatorId);
+  }
+
+  async getAllActivitiesByRanking(
+    rankingId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const ranking = await this.rankingRepository.findById(rankingId);
+
+    if (!ranking) {
+      throw new NotFoundException('O ranking não existe.');
+    }
+
+    return this.activitiesRepository.getAllActivitiesByRanking(rankingId);
+  }
+
+  async getAllActivitiesWithNoRanking(
+    userId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    const user = await this.usersRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('O usuário não existe.');
+    }
+
+    return await this.activitiesRepository.getAllActivitesWithNoRanking(userId);
   }
 
   private _calculateActivityScore(activity: Activity): number {

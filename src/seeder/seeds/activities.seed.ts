@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker/locale/pt_BR';
 import { Injectable, Logger } from '@nestjs/common';
 import { ActivitiesService } from 'src/activities/activities.service';
 import { CreateActivityDTO } from 'src/activities/dtos/create-activity.dto';
@@ -22,64 +23,32 @@ export class ActivitiesSeed {
       );
       return [];
     }
-
-    if (students.length < 2) {
-      this.logger.warn(
-        'Skipping activities seed: At least 2 students are required for this seed script.',
-      );
-      return [];
-    }
-
     try {
-      const today = new Date();
-      const activitiesData: CreateActivityDTO[] = [
-        {
-          description: 'Corrida leve de 30 minutos.',
-          timeSpentInSeconds: 1800,
-          type: ActivityType.RUNNING,
-          intesity: ActivityItensity.LOW,
-          ocurredAt: new Date(new Date().setDate(today.getDate() - 5)),
-        },
-        {
-          description: 'Treino de peito e tríceps.',
-          timeSpentInSeconds: 3600,
-          type: ActivityType.GENERAL,
-          intesity: ActivityItensity.MODERATE,
-          ocurredAt: new Date(new Date().setDate(today.getDate() - 3)),
-        },
-        {
-          description: 'Futebol intenso de 90 minutos.',
-          timeSpentInSeconds: 5400,
-          type: ActivityType.SPORT,
-          intesity: ActivityItensity.HIGH,
-          ocurredAt: new Date(new Date().setDate(today.getDate() - 1)),
-        },
-      ];
+      for (let ranking of rankings) {
+        const allActivitiesPromises = students.map(async (student) => {
+          const numberOfActivities = faker.number.int({ min: 5, max: 6 });
+          const activitiesDTO =
+            this._generateFakeActivities(numberOfActivities);
 
-      const ranking = rankings[0];
+          return this._createActivitiesForStudent(
+            activitiesDTO,
+            student._id,
+            ranking._id,
+          );
+        });
 
-      const student1 = students[0];
-      const student2 = students[1];
+        const results = await Promise.all(allActivitiesPromises);
 
-      const activitiesForStudent1 = activitiesData.slice(0, 2);
-      const activitiesForStudent2 = activitiesData.slice(2);
+        const allCreatedActivities = results.flat();
 
-      const [createdActivities1, createdActivities2] = await Promise.all([
-        this._createActivitiesForStudent(
-          activitiesForStudent1,
-          student1._id,
-          ranking._id,
-        ),
-        this._createActivitiesForStudent(
-          activitiesForStudent2,
-          student2._id,
-          ranking._id,
-        ),
-      ]);
+        this.logger.log(
+          `Successfully seeded ${allCreatedActivities.length} Activities across ${students.length} students.`,
+        );
 
-      this.logger.log('Successfully seeded Activities.');
+        return allCreatedActivities;
+      }
 
-      return [...createdActivities1, ...createdActivities2];
+      return [];
     } catch (error) {
       this.logger.error('Failed to seed Activities.', error);
       return [];
@@ -101,15 +70,70 @@ export class ActivitiesSeed {
     }
   }
 
-  private _createActivitiesForStudent(
+  private _generateFakeActivities(count: number): CreateActivityDTO[] {
+    return Array.from({ length: count }).map(() => {
+      const type = faker.helpers.enumValue(ActivityType);
+
+      let description = '';
+      switch (type) {
+        case ActivityType.RUNNING:
+          description = faker.helpers.arrayElement([
+            'Corrida no parque',
+            'Trote leve',
+            'Treino de tiros',
+            'Maratona 5km',
+          ]);
+          break;
+        case ActivityType.SPORT:
+          description = faker.helpers.arrayElement([
+            'Futebol com amigos',
+            'Vôlei de praia',
+            'Basquete',
+            'Natação',
+          ]);
+          break;
+        default:
+          description = faker.helpers.arrayElement([
+            'Treino de força',
+            'Crossfit',
+            'Yoga',
+            'Pilates',
+            'Funcional',
+          ]);
+      }
+
+      return {
+        description: description,
+        timeSpentInSeconds: faker.number.int({ min: 800, max: 7200 }),
+        type: type,
+        intesity: faker.helpers.enumValue(ActivityItensity),
+        ocurredAt: faker.date.recent({ days: 14 }),
+      };
+    });
+  }
+
+  private async _createActivitiesForStudent(
     activitiesDTO: CreateActivityDTO[],
     studentId: any,
     rankingId: any,
   ): Promise<Activity[]> {
-    const creationPromises = activitiesDTO.map((dto) =>
-      this.activitiesService.createStudentActivity(studentId, rankingId, dto),
-    );
+    const createdActivities: Activity[] = [];
 
-    return Promise.all(creationPromises);
+    for (const dto of activitiesDTO) {
+      try {
+        const activity = await this.activitiesService.createStudentActivity(
+          studentId,
+          rankingId,
+          dto,
+        );
+        createdActivities.push(activity);
+      } catch (e) {
+        this.logger.warn(
+          `Failed to create activity for student ${studentId}: ${e.message}`,
+        );
+      }
+    }
+
+    return createdActivities;
   }
 }

@@ -14,14 +14,16 @@ export class ActivitiesRepository {
   async create(
     userId: Types.ObjectId,
     createData: CreateActivityDTO,
-    rankingId: Types.ObjectId,
+    rankingId: Types.ObjectId | null,
     isConfirmed: boolean,
+    createdBy: Types.ObjectId,
   ): Promise<Activity> {
     const createdActivity = await this.activityModel.create({
       ...createData,
       userId: new Types.ObjectId(userId),
-      rankingId: new Types.ObjectId(rankingId),
+      rankingId: rankingId ? new Types.ObjectId(rankingId) : null,
       isConfirmed,
+      createdBy,
     });
 
     return createdActivity;
@@ -78,7 +80,7 @@ export class ActivitiesRepository {
       rankingId: new Types.ObjectId(rankingId),
     };
 
-    console.log('filter', filter);
+    // console.log('filter', filter);
 
     return await this.activityModel.find(filter).sort({ ocurredAt: -1 }).exec();
   }
@@ -94,5 +96,64 @@ export class ActivitiesRepository {
 
   async deleteById(activityId: any): Promise<void> {
     await this.activityModel.findByIdAndDelete(activityId).exec();
+  }
+
+  async getAllActivitiesByCreator(creatorId: Types.ObjectId): Promise<any[]> {
+    return this.activityModel
+      .aggregate([
+        {
+          $match: {
+            createdBy: creatorId,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              rankingId: '$rankingId',
+              ocurredAt: '$ocurredAt',
+              type: '$type',
+              description: '$description',
+            },
+            details: { $first: '$$ROOT' },
+            participants: { $push: '$userId' },
+            activityIds: { $push: '$_id' },
+            studentCount: { $sum: 1 },
+          },
+        },
+        {
+          $sort: {
+            '_id.ocurredAt': -1,
+          },
+        },
+        {
+          $project: {
+            _id: { $arrayElemAt: ['$activityIds', 0] },
+            rankingId: '$_id.rankingId',
+            ocurredAt: '$_id.ocurredAt',
+            type: '$_id.type',
+            description: '$_id.description',
+            timeSpentInSeconds: '$details.timeSpentInSeconds',
+            intesity: '$details.intesity',
+            isConfirmed: '$details.isConfirmed',
+            createdBy: '$details.createdBy',
+            participants: 1,
+            studentCount: 1,
+            isGroupActivity: { $gt: ['$studentCount', 1] },
+          },
+        },
+      ])
+      .exec();
+  }
+
+  async getAllActivitiesByRanking(
+    rankingId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    return this.activityModel.find({ rankingId }).exec();
+  }
+
+  async getAllActivitesWithNoRanking(
+    userId: Types.ObjectId,
+  ): Promise<Activity[]> {
+    return this.activityModel.find({ createdBy: userId, rankingId: null });
   }
 }

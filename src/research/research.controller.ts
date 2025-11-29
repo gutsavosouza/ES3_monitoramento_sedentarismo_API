@@ -17,15 +17,28 @@ export class ResearchController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all research records',
-    description: 'Retrieves all available research records without any filters.',
+    summary: 'Get all research records with pagination',
+    description:
+      'Retrieves available research records with optional pagination.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination.',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page.',
   })
   @ApiResponse({
     status: 200,
-    description: 'All research records returned successfully.',
+    description: 'Research records returned successfully.',
   })
-  findAll() {
-    return this.researchService.findAll();
+  findAll(@Query() query: GetResearchDataQueryDto) {
+    return this.researchService.findAll(query);
   }
 
   @Get('query/:researchType')

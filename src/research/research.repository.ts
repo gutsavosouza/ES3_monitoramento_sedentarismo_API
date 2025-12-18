@@ -7,6 +7,7 @@ import {
   ResearchDataDocument,
 } from './schemas/research-data.schema';
 import { GetResearchDataDto } from './dtos/get-research-data.dto';
+import { GetResearchDataQueryDto } from './dtos/get-research-data-query.dto';
 
 interface Match {
   sexo?: number;
@@ -33,8 +34,27 @@ export class ResearchRepository {
     return { $match: match };
   }
 
-  async findAll(): Promise<ResearchData[]> {
-    return this.researchModel.find().exec();
+  async findAll(
+    query: GetResearchDataQueryDto,
+  ): Promise<[ResearchData[], number]> {
+    const { page = 1, limit = 10, sexo, idade, gre, serie, year } = query;
+    const filter: Match = {};
+    if (sexo) filter.sexo = sexo;
+    if (idade) filter.idade = idade;
+    if (gre) filter.gre = gre;
+    if (serie) filter.serie = serie;
+    if (year) filter.year = year;
+
+    const [data, total] = await Promise.all([
+      this.researchModel
+        .find(filter)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+      this.researchModel.countDocuments(filter),
+    ]);
+
+    return [data, total];
   }
 
   async upsertMany(data: CreateResearchDataDto[]): Promise<void> {
